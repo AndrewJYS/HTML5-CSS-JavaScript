@@ -135,7 +135,53 @@ HTML5允许任何格式的视频文件，具体支持哪些格式由浏览器决
 <!--codecs指定使用哪个编解码器来对视频和音频编码-->
 ```
 
+## 表格  
+
+### 使用伪类设置行的背景颜色  
+
+加入定义了一系列的表格行元素tr，想要给奇数行和偶数行设置不同的背景颜色，则要使用伪类语法:  
+
+```html
+tr:nth-child(2n) {
+  background-color: red;
+}
+tr:nth-child(2n+1) {
+  background-color: green;
+}
+```
+
+或者  
+
+```html
+tr:nth-child(even) {
+  background-color: red;
+}
+tr:nth-child(odd) {
+  background-color: green;
+}
+```
+
+### 单元格跨行  
+
+使用rowspan属性使单元格跨行，下述代码实现了将“Truth or Consequences, NM”，“4,242 ft”和“7,289”跨行。rowspan指明了跨两行  
+
+```html
+<tr>
+  <td rowspan="2">Truth or Consequences, NM</td>
+  <td class="center">August 9th</td>
+  <td class="center">93</td>
+  <td rowspan="2" class="right">4,242 ft</td>
+  <td rowspan="2" class="right">7,289</td>
+  <td class="center">5/5</td>
+</tr>
+<tr>
+  <td class="center">August 27th</td>
+  <td class="center">98</td>
+  <td class="center">4/5</td>
+</tr>
+```
+
 ## 参考  
 
-Head First HTML and CSS, 2nd edtion, Chapter 2-6, 12  
+Head First HTML and CSS, 2nd edtion, Chapter 2-6, 12-13  
 https://blog.csdn.net/lhjuejiang/article/details/80795081  
