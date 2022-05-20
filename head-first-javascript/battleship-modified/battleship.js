@@ -70,6 +70,7 @@ var model = {
 				ship.hits[index] = "hit";
 				view.displayHit(guess);
 				view.displayMessage("HIT!");
+				view.displayExplodeSound();
 
 				if (this.isSunk(ship)) {
 					view.displayMessage("You sank my battleship!");
@@ -80,6 +81,7 @@ var model = {
 		}
 		view.displayMiss(guess);
 		view.displayMessage("You missed.");
+		view.displayMissSound();
 		return false;
 	},
 
@@ -113,51 +115,37 @@ var view = {
 	displayMiss: function(location) {
 		var cell = document.getElementById(location).parentNode;
 		cell.setAttribute("class", "miss");
-	}
-}; 
-
-var controller = {
-	guesses: 0,
-	missiles: 30,
-
-	processGuess: function(location) {
-		if (location) {
-			this.guesses++;
-			this.missiles--;
-			view.displayMissiles();
-			var hit = model.fire(location);
-			if (hit && model.shipsSunk == model.numShips) {
-				view.displayMessage("You sank all my battleships, in " + this.guesses + " guesses");
-
-				// remove tables
-				this.removeTable();
-			}
-
-			if (!this.missiles && model.shipsSunk != model.numShips) {
-				view.displayMessage("Lose the game, no missiles!");
-
-				// remove tables
-				this.removeTable();
-			}
-		}
 	},
 
-	processNum: function(num) {
-		var numOfBattleship = checkNum(num);
-		if (numOfBattleship) { // if number is valid
-			model.numShips = numOfBattleship;
-			model.generateShipLocations();
+	displayCountTimeBackward: function(time) {
+		var messageArea = document.getElementById("messageArea");
+		messageArea.innerHTML = "Restart game in " + String(time) + " sec.";
+	},
 
-			// delete form
-			var myForm = document.getElementById("myForm");
-			myForm.remove();
+	displayExplodeSound: function() {
+		var sound = document.createElement("audio");
+		sound.setAttribute("src", "sound/explode.mp3");
+		sound.volume = 0.15;
+		sound.setAttribute("autoplay", "autoplay");
+		sound.setAttribute("class", "explode");
 
-			// generate buttons
-			this.generateButtons();
+		var body = document.body;
+		body.appendChild(sound);
 
-			// add button.onclick
-			this.addOnclick();
-		}
+		setTimeout(function(){sound.remove();},3000);
+	},
+
+	displayMissSound: function() {
+		var sound = document.createElement("audio");
+		sound.setAttribute("src", "sound/miss.mp3");
+		sound.volume = 0.1;
+		sound.setAttribute("autoplay", "autoplay");
+		sound.setAttribute("class", "miss");
+
+		var body = document.body;
+		body.appendChild(sound);
+
+		setTimeout(function(){sound.remove();},3000);
 	},
 
 	generateButtons: function() {
@@ -176,7 +164,80 @@ var controller = {
 			}
 		}
 	},
-	 
+
+	removeTable: function() {
+		var table = document.getElementById("table");
+		table.remove();
+	},
+
+	removeForm: function() {
+		var myForm = document.getElementById("myForm");
+		myForm.remove();
+	}
+}; 
+
+var controller = {
+	guesses: 0,
+	missiles: 30,
+	time: 5,
+
+	processGuess: function(location) {
+		if (location) {
+			this.guesses++;
+			this.missiles--;
+
+			view.displayMissiles();
+			var hit = model.fire(location);
+			if (hit && model.shipsSunk == model.numShips) {
+				view.displayMessage("You sank all my battleships, in " + this.guesses + " guesses");
+
+				// remove tables
+				view.removeTable();
+
+				//restart the game
+				this.restartGame(); 
+			}
+
+			if (!this.missiles && model.shipsSunk != model.numShips) {
+				view.displayMessage("Lose the game, no missiles!");
+
+				// remove tables
+				view.removeTable();
+
+				//restart the game
+				this.restartGame(); 
+			}
+		}
+	},
+
+	processNum: function(num) {
+		var numOfBattleship = this.checkNum(num);
+		if (numOfBattleship) { // if number is valid
+			model.numShips = numOfBattleship;
+			model.generateShipLocations();
+
+			// delete form
+			view.removeForm();
+
+			// generate buttons
+			view.generateButtons();
+
+			// add button.onclick
+			this.addOnclick();
+		}
+	},
+
+	checkNum: function(num) {
+		if (num == null || isNaN(num)) {
+			alert("Oops, please enter a number on the board.");
+		} else if (num <= 0 || num > 5) {
+			alert("Oops, please enter a number between 1 and 5.");
+		} else {
+			return num;
+		}
+		return null;
+	},
+
 	addOnclick: function() {
 		// after generate buttons, handle them
 		for (var i = 0; i < model.boardSize; i++) {
@@ -187,25 +248,17 @@ var controller = {
 			}
 		}
 	},
-
-	removeTable: function() {
-		var table = document.getElementById("table");
-		table.remove();
+	
+	restartGame: function() {
+		setTimeout(view.displayCountTimeBackward, 1000, 3);
+		setTimeout(view.displayCountTimeBackward, 2000, 2);
+		setTimeout(view.displayCountTimeBackward, 3000, 1);
+		setTimeout(
+			function(){
+				window.location.reload();	
+			},
+			4000);
 	}
-}
-
-
-// helper function to parse a guess from the user
-
-function checkNum(num) {
-	if (num == null || isNaN(num)) {
-		alert("Oops, please enter a number on the board.");
-	} else if (num <= 0 || num > 5) {
-		alert("Oops, please enter a number between 1 and 5.");
-	} else {
-		return num;
-	}
-	return null;
 }
 
 
@@ -239,15 +292,16 @@ function handleFireButton(eventObj) {
 	var button = eventObj.target;
 	var location = button.id;
 	controller.processGuess(location);
+	button.setAttribute("disabled", "disabled");
 }
 
-function addMusic() {
-	var board = document.getElementById("board");
-	var audio = document.createElement(audio);
-	board.appendChild(audio);
-	audio.setAttribute('src', "music/001.mp3");
-	audio.setAttribute('autoplay', 'autoplay');
-}
+// function addMusic() {
+// 	var board = document.getElementById("board");
+// 	var audio = document.createElement(audio);
+// 	board.appendChild(audio);
+// 	audio.setAttribute('src', "music/001.mp3");
+// 	audio.setAttribute('autoplay', 'autoplay');
+// }
 
 
 // init - called when the page has completed loading
@@ -263,7 +317,7 @@ function init() {
 	var numInput = document.getElementById("battleshipNum");
 	numInput.onkeypress = handleKeyPress;
 
-	audioAutoPlay();
+	// audioAutoPlay();
 
 	view.displayMissiles();
 }

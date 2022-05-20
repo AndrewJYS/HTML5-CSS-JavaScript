@@ -3,3 +3,4 @@
 ## 参考  
 
 Head First HTML and CSS, 2nd edition
+Head First JavaScript Programming  

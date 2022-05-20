@@ -277,4 +277,77 @@ var planetClass = planet.getAttribute("class");
 
 当getElementById(), getAttribute()获取值不存在，浏览器会返回null  
 
-##  
+## 异步编码--处理事件  
+
+以响应事件的方式组织代码是另一种代码编写方式。要以这种方式编写代码，需要考虑可能发生的事件以及代码应如何响应这些事件。在计算机科学中，通常说这种代码是异步（asynchronous）的，因为我们编写的代码仅在相应的事件发生时才会被调用。为让处理程序在事件发生时得以调用，你首先需要注册它。  
+
+### 网页加载事件  
+
+网页加载事件的触发时间点是：浏览器加载完网页、显示网页的所有内容并生成了表示网页的DOM。  
+
+```js
+window.onload = pageLoadedHandler;
+
+function pageLoadedHandler() {
+    alert("I'm alive!");
+}
+```
+
+### 单击事件  
+
+```js
+window.onload = init;
+function init() {
+    var image = document.getElementById("zero");
+    image.onclick = showAnswer;
+}
+
+function showAnswer() {
+    var image = document.getElementById("zero");
+    image.src = "zero.jpg";
+}
+```
+
+网页加载完毕后，将调用加载事件处理程序。在这个处理程序中，我们将一个处理程序赋给了图像的属性onclick，但要等到用户单击图像时才会调用它。因此，这两个处理程序是在不同的时间调用的.  
+
+### 如何让同一个处理程序用于某一类的所有元素  
+
+单击事件处理程序被调用时，将向它传递一个事件对象。事实上，大多数文档对象模型（DOM）事件发生时，都会向相应的处理程序传递一个事件对象。
+
+比如：用户单击图像时，将触发单击事件，这将导致一个event对象被创建，在事件处理程序中，你可使用这个事件对象来获取有关事件的信息，如事件类型、触发事件的元素等。  
+
+```js
+function showAnswer(eventObj) {
+    var image = eventObj.target;
+}
+
+//target指出了触发事件的是哪个元素。
+```
+
+### 基于时间的事件  
+
+下述代码让定时器等待5000毫秒再执行timerHandler()  
+
+```js
+setTimeout(timerHandler, 5000);
+
+function timerHandler() {
+    alert("Hey what are you doing just sitting there staring at a blank screen?");
+}
+```
+
+setTimeout还可接受处理程序的参数  
+
+```js
+setTimeout(reblur, 2000, image);
+
+function reblur(image) {
+    var name = image.id;
+    name = name + "blur.jpg";
+    image.src = name;
+}
+```
+
+## 参考  
+
+Head First JavaScript Programming  

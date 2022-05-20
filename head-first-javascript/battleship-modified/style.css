@@ -25,7 +25,7 @@ div#missileLeft {
 }
 
 .hit {
-	background: url("imgs/fire.gif") no-repeat center center;
+	background: url("imgs/ship.png") no-repeat center center;
 }
 .miss {
 	background: url("imgs/miss.png") no-repeat center center;
@@ -67,4 +67,15 @@ form input {
 	background-color: rgb(152, 207, 113);
 	border-color: rgb(83, 175, 19);
 	font-size: 1em;
+}
+
+
+.explode {
+	height: 0px;
+	width: 0px;
+	
+}
+.miss {
+	height: 0px;
+	width: 0px;
 }
